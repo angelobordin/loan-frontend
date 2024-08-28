@@ -40,6 +40,8 @@ import { Currency } from 'util/interfaces/currrency';
 export class LoanComponent implements OnInit, OnDestroy {
   loans$: Observable<LoanResponse[]>;
 
+  tmpCurrency: Currency;
+
   customers: Customer[];
   currencies: Currency[];
   
@@ -69,6 +71,28 @@ export class LoanComponent implements OnInit, OnDestroy {
     this.loans$ = this._service.loans$;
     this.loans$.pipe(takeUntil(this._unsubscribeAll)).subscribe();
   }
+
+  updateLoanCurrency(e: any) {
+    console.log(e.value);
+    this.tmpCurrency = e.value;
+    this.form.patchValue({ moeda: this.tmpCurrency.simbolo });
+  }
+
+  convertCurrency() {
+
+  }
+
+  /** 
+  Exemplo de cálculo da cotação das moedas tipo A em unidade monetária corrente, considerando o real (BRL) como unidade monetária corrente e o dólar canadense (CAD) como moeda estrangeira:
+
+  Cotação de Compra CADBRL = Cotação USDBRL de Compra ÷ Paridade USDCAD de Venda
+  Cotação de Venda CADBRL = Cotação USDBRL de Venda ÷ Paridade USDCAD de Compra
+
+  Exemplo de cálculo da cotação das moedas tipo B em unidade monetária corrente, considerando o real (BRL) como unidade monetária corrente e o euro (EUR) como moeda estrangeira:
+
+  Cotação de Compra EURBRL = Paridade EURUSD de Compra × Cotação USDBRL de Compra
+  Cotação de Venda EURBRL = Paridade EURUSD de Venda × Cotação USDBRL de Venda
+  */
 
   registerLoan() {
     this._service.registerLoan({

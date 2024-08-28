@@ -44,8 +44,8 @@
                 <div class="col-4">
                     <mat-form-field appearance="outline" class="flex-auto col-12">
                         <mat-label>Moeda</mat-label>
-                        <mat-select formControlName="moeda">
-                            <mat-option *ngFor="let currency of this.currencies" [value]="currency.simbolo">
+                        <mat-select formControlName="moeda" (selectionChange)="updateLoanCurrency($event)">
+                            <mat-option *ngFor="let currency of this.currencies" [value]="currency">
                                 {{ currency.simbolo }} - {{ currency.nomeFormatado }}
                             </mat-option>
                         </mat-select>
@@ -61,7 +61,7 @@
                     <mat-form-field appearance="outline" class="col-12">
                         <mat-label for="valor_obtido" class="label">Valor Contratado</mat-label>
                         <input matInput name="valor_obtido" id="valor_obtido" class="form-control"
-                            formControlName="valor_obtido" type="text" mask="separator.2" prefix="">
+                            formControlName="valor_obtido" type="text" mask="separator.2" prefix="" (input)="convertCurrency()">
                     </mat-form-field>
                     <ng-container>
                         <div class="alert alert-danger" *ngIf="form.get('valor_obtido')?.errors && form.get('valor_obtido')?.touched">
