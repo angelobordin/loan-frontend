@@ -1,0 +1,201 @@
+<div class="flex flex-col flex-auto min-w-0">
+
+    <!-- Main -->
+    <div class="flex-auto border-t -mt-px pt-4 sm:pt-6">
+        <div class="w-full max-w-screen-xl mx-auto">
+            <h2>Empréstimos</h2>
+        </div>
+    </div>
+
+    <div class="flex-auto p-6 sm:p-10 mb-3">
+        <p>Novo Empréstimo</p>
+
+        <form [formGroup]="form" class="container">
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <div class="form-control-group">
+                        <mat-form-field appearance="outline" class="flex-auto col-12">
+                            <mat-label label for="data_emprestimo" class="label"> Data de Contrato </mat-label>
+                            <input matInput name="data_emprestimo" id="data_emprestimo" type="date" class="form-control" max="9999-12-31" formControlName="data_emprestimo" />
+                        </mat-form-field>
+                        <ng-container>
+                            <div class="alert alert-danger" *ngIf="form.get('data_emprestimo')?.errors && form.get('data_emprestimo')?.touched">
+                                Data do Empréstimo é obrigatória!
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-control-group">
+                        <mat-form-field appearance="outline" class="flex-auto col-12">
+                            <mat-label label for="data_vencimento" class="label"> Data de Vencimento </mat-label>
+                            <input matInput name="data_vencimento" id="data_vencimento" type="date" class="form-control" max="9999-12-31" formControlName="data_vencimento" />
+                        </mat-form-field>
+                        <ng-container>
+                            <div class="alert alert-danger" *ngIf="form.get('data_vencimento')?.errors && form.get('data_vencimento')?.touched">
+                                Data do Vencimento é obrigatória!
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <mat-form-field appearance="outline" class="flex-auto col-12">
+                        <mat-label>Moeda</mat-label>
+                        <mat-select formControlName="moeda">
+                            <mat-option *ngFor="let currency of this.currencies" [value]="currency.simbolo">
+                                {{ currency.simbolo }} - {{ currency.nomeFormatado }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <ng-container>
+                        <fuse-alert [type]="'warn'"
+                            *ngIf="form.get('moeda').errors?.required && form.get('moeda').touched">
+                            Moeda é obrigatório! </fuse-alert>
+                    </ng-container>
+                </div>
+
+                <div class="col-4">
+                    <mat-form-field appearance="outline" class="col-12">
+                        <mat-label for="valor_obtido" class="label">Valor Contratado</mat-label>
+                        <input matInput name="valor_obtido" id="valor_obtido" class="form-control"
+                            formControlName="valor_obtido" type="text" mask="separator.2" prefix="">
+                    </mat-form-field>
+                    <ng-container>
+                        <div class="alert alert-danger" *ngIf="form.get('valor_obtido')?.errors && form.get('valor_obtido')?.touched">
+                            Valor Contratado é obrigatória!
+                        </div>
+                    </ng-container>
+                </div>
+
+                <div class="col-4">
+                    <mat-form-field appearance="outline" class="col-12">
+                        <mat-label for="valor_convertido" class="label">Valor Convertido Em R$</mat-label>
+                        <input matInput name="valor_convertido" id="valor_convertido" class="form-control"
+                            formControlName="valor_convertido" type="text" mask="separator.2" prefix="">
+                    </mat-form-field>
+                    <ng-container>
+                        <div class="alert alert-danger" *ngIf="form.get('valor_convertido')?.errors && form.get('valor_convertido')?.touched">
+                            Valor Convertido Em R$ é obrigatória!
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <mat-form-field appearance="outline" class="flex-auto col-12">
+                        <mat-label>Cliente</mat-label>
+                        <mat-select formControlName="customer_id">
+                            <mat-option *ngFor="let customer of this.customers" [value]="customer.id">
+                                {{ customer.id }} - {{ customer.cpf | mask: "000.000.000-00": { prefix: '' } }} - {{ customer.name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <ng-container>
+                        <fuse-alert [type]="'warn'"
+                            *ngIf="form.get('customer_id').errors?.required && form.get('customer_id').touched">
+                            Cliente é obrigatório! </fuse-alert>
+                    </ng-container>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <button *ngIf="!this.form.value['id']" [disabled]="form.invalid || inAction" type="button" class="btn btn-success" (click)="registerLoan()">Cadastrar</button>
+                    <button *ngIf="this.form.value['id']" [disabled]="form.invalid || form.pristine || inAction" type="button" class="btn btn-success" (click)="saveCustomer()">Salvar</button>
+                </div>
+
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-6"></div>
+                        <div class="col-6">
+                            <mat-form-field class="col-12">
+                                <mat-label for="valor_final" class="label">Valor Final (R$)</mat-label>
+                                <input matInput name="valor_final" id="valor_final" class="form-control" [readonly]="true"
+                                    formControlName="valor_final" type="text" mask="separator.2" >
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <ng-container *ngIf="(loans$ | async) as loans">
+        <ng-container *ngIf="loans.length > 0; else noLoans">
+            <div class="grid">
+
+                <div class="product-grid z-10 sticky top-0 grid grid-cols-8 gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
+                    matSort matSortDisableClear>
+                    <div class="flex justify-center">
+                        Ações
+                    </div>
+                    <div>
+                        ID
+                    </div>
+                    <div>
+                        Cliente
+                    </div>
+                    <div>
+                        Valor Contratado
+                    </div>
+                    <div>
+                        Valor Restante
+                    </div>
+                    <div>
+                        Data Criação
+                    </div>
+                    <div>
+                        Data Vencimento
+                    </div>
+                    <div>
+                        Duração do Contrato
+                    </div>
+                </div>
+
+                <ng-container *ngIf="(loans$ | async) as loans">
+                    <ng-container *ngFor="let loan of loans; trackBy: trackByFn">
+                        <div class="loan-row flex items-center gap-4 py-3 px-6 md:px-8 border-b even:bg-gray-100 odd:bg-white dark:even:bg-gray-800 dark:odd:bg-gray-700">
+                            <div class="flex justify-center items-center">
+                                <mat-icon aria-hidden="false" fontIcon="delete" class="botao text-red-500 cursor-pointer" (click)="deleteLoan(loan)"></mat-icon>
+                            </div>
+                            <div>
+                                {{ loan.id }}
+                            </div>
+                            <div>
+                                {{ loan.customer.name }}
+                            </div>
+                            <div>
+                                {{ loan.valor_obtido | currency:'BRL' }}
+                            </div>
+                            <div>
+                                {{ loan.valor_final | currency:'BRL' }}
+                            </div>
+                            <div>
+                                {{ loan.data_emprestimo | date:'MMM dd, h:mm a' }}
+                            </div>
+                            <div>
+                                {{ loan.data_vencimento | date:'MMM dd, h:mm a' }}
+                            </div>
+                            <div>
+                                5 Meses
+                            </div>
+                        </div>
+                    </ng-container>
+                </ng-container>
+
+
+            </div>
+        </ng-container>
+    </ng-container>
+
+    <ng-template #noLoans>
+        <div class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center">
+            Não há Empréstimos Cadastrados
+        </div>
+    </ng-template>
+
+</div>

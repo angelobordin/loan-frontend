@@ -3,13 +3,13 @@
     <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
       <div class="position-sticky">
         <ul class="nav flex-column">
-          <li class="nav-item" (click)="navigateTo('/customer')">
-            <a class="nav-link">
+          <li class="nav-item">
+            <a class="nav-link" (click)="navigateTo('/customer')">
               Clientes
             </a>
           </li>
-          <li class="nav-item" (click)="navigateTo('/loan')">
-            <a class="nav-link bg-blue-200">
+          <li class="nav-item">
+            <a class="nav-link" (click)="navigateTo('/loan')">
               Empréstimos
             </a>
           </li>
@@ -18,7 +18,13 @@
     </nav>
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <router-outlet></router-outlet>
+      <div class="flex flex-col flex-auto w-full min-w-0">
+
+        <div class="flex flex-col flex-auto">
+            <router-outlet *ngIf="true"></router-outlet>
+        </div>
+    
+    </div>
     </main>
   </div>
 </div>

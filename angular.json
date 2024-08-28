@@ -3,9 +3,13 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "loan-frontend": {
+    "meu-projeto-angular": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -13,24 +17,26 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/loan-frontend",
+            "outputPath": "dist/meu-projeto-angular",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css"
-            ],
-            "scripts": []
+           "styles": [
+            "@angular/material/prebuilt-themes/azure-blue.css",
+            "node_modules/bootstrap/dist/css/bootstrap.css",
+            "src/styles.scss"
+          ],
+						"scripts": []
           },
           "configurations": {
             "production": {
@@ -60,10 +66,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "loan-frontend:build:production"
+              "buildTarget": "meu-projeto-angular:build:production"
             },
             "development": {
-              "buildTarget": "loan-frontend:build:development"
+              "buildTarget": "meu-projeto-angular:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -79,6 +85,7 @@
               "zone.js/testing"
             ],
             "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
@@ -86,7 +93,8 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "@angular/material/prebuilt-themes/azure-blue.css",
+              "src/styles.scss"
             ],
             "scripts": []
           }

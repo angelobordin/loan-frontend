@@ -1,0 +1,32 @@
+.product-grid {
+    border-bottom: 2px solid #ddd;
+    background-color: #f8f9fa;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+}
+
+.loan-row {
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s;
+}
+
+.loan-row:hover {
+    background-color: #f1f1f1;
+}
+
+.loan-row div {
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+}
+
+.loan-row .botao {
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.loan-row .botao:hover {
+    color: #dc3545; /* Red hover color for delete icon */
+}

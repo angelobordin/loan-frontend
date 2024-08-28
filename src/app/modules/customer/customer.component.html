@@ -1,0 +1,109 @@
+<div class="flex flex-col flex-auto min-w-0">
+
+    <!-- Main -->
+    <div class="flex-auto border-t -mt-px pt-4 sm:pt-6">
+        <div class="w-full max-w-screen-xl mx-auto">
+            <h2>Clientes</h2>
+        </div>
+    </div>
+
+    <div class="flex-auto p-6 sm:p-10 mb-3">
+        <p>Novo Cliente</p>
+
+        <form [formGroup]="form" class="container">
+            <div class="row">
+                <div class="col-12 col-md-5">
+                    <div class="form-control-group">
+                        <mat-form-field appearance="outline" class="flex-auto col-12">
+                            <mat-label label for="cpf" class="label"> CPF </mat-label>
+                            <input matInput name="cpf" id="cpf" placeholder="CPF" type="text"
+                            maxlength="14" class="form-control" formControlName="cpf"
+                            mask="000.000.000-00" prefix="" />
+                        </mat-form-field>
+                        <ng-container>
+                            <div class="alert alert-danger" *ngIf="form.get('cpf')?.errors && form.get('cpf')?.touched">
+                                CPF inválido!
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+                <div class="col-12 col-md-7">
+                    <div class="form-control-group">
+                        <mat-form-field appearance="outline" class="flex-auto col-12">
+                            <mat-label label for="name" class="label"> Nome </mat-label>
+                            <input matInput name="name" id="name" placeholder="Nome" type="text" class="form-control" maxlength="60"
+                            formControlName="name" />
+                        </mat-form-field>
+                        <ng-container>
+                            <div class="alert alert-danger" *ngIf="form.get('name')?.errors && form.get('name')?.touched">
+                                Nome é Obrigatório!
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <button *ngIf="!this.form.value['id']" [disabled]="form.invalid || inAction" type="button" class="btn btn-success" (click)="registerCustomer()">Cadastrar</button>
+                    <button *ngIf="this.form.value['id']" [disabled]="form.invalid || form.pristine || inAction" type="button" class="btn btn-success" (click)="saveCustomer()">Salvar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <ng-container *ngIf="(customers$ | async) as customers">
+        <ng-container *ngIf="customers.length > 0; else noCustomers">
+            <div class="grid">
+
+                <div class="product-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
+                    matSort matSortDisableClear>
+                    <div class="flex justify-center">
+                        Ações
+                    </div>
+                    <div>
+                        ID
+                    </div>
+                    <div>
+                        CPF
+                    </div>
+                    <div>
+                        Nome
+                    </div>
+                </div>
+
+                <ng-container *ngIf="(customers$ | async) as customers">
+                    <ng-container *ngFor="let customer of customers; trackBy: trackByFn">
+                        <div class="loan-row flex items-center gap-4 py-3 px-6 md:px-8 border-b even:bg-gray-100 odd:bg-white dark:even:bg-gray-800 dark:odd:bg-gray-700">
+
+                            <div class="flex justify-center items-center">
+                                <mat-icon aria-hidden="false" fontIcon="edit" class="botao" onKeyPress (click)="editCustomer(customer)"></mat-icon>
+                                <mat-icon aria-hidden="false" fontIcon="delete" class="botao" onKeyPress (click)="deleteCustomer(customer)"></mat-icon>
+                            </div>
+
+                            <div>
+                                {{ customer.id }}
+                            </div>
+
+                            <div>
+                                {{ customer.cpf | mask: "000.000.000-00": { prefix: "" } }}
+                            </div>
+
+                            <div>
+                                {{ customer.name }}
+                            </div>
+
+                        </div>
+                    </ng-container>
+                </ng-container>
+
+            </div>
+        </ng-container>
+    </ng-container>
+
+    <ng-template #noCustomers>
+        <div class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center">
+            Não há Clientes Cadastrados
+        </div>
+    </ng-template>
+
+</div>
