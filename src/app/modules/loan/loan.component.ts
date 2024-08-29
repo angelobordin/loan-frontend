@@ -12,7 +12,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { ActivatedRoute } from '@angular/router';
 import { LoanService } from './loan.service';
 import { Customer } from 'util/interfaces/customer';
-import { LoanForm, LoanResponse } from 'util/interfaces/loan';
+import { LoanResponse } from 'util/interfaces/loan';
 import { Currency } from 'util/interfaces/currrency';
 
 @Component({
@@ -39,6 +39,8 @@ import { Currency } from 'util/interfaces/currrency';
 })
 export class LoanComponent implements OnInit, OnDestroy {
   loans$: Observable<LoanResponse[]>;
+  loanDuration: number = 0;
+  valor_convertido: number = 0;
 
   tmpCurrency: Currency;
 
@@ -64,22 +66,57 @@ export class LoanComponent implements OnInit, OnDestroy {
       moeda: [null, [Validators.required]],
       valor_obtido: [null, [Validators.required]],
       valor_convertido: [{ value: null, disabled: true }],
-      valor_final: [10, [Validators.required]],
+      valor_final: [null, [Validators.required]],
       customer_id: [null, [Validators.required]],
     })
 
     this.loans$ = this._service.loans$;
     this.loans$.pipe(takeUntil(this._unsubscribeAll)).subscribe();
+
+    this.form.valueChanges.subscribe(res => {
+      this.calcularValorFinalEmprestimo();
+    })
+
+    this.form.get('data_emprestimo').valueChanges.subscribe(newValue => {
+      this.loanDuration = this.calculateMonthsDifference(newValue, this.form.value['data_vencimento']);
+    });
+
+    this.form.get('data_vencimento').valueChanges.subscribe(newValue => {
+      this.loanDuration = this.calculateMonthsDifference(this.form.value['data_emprestimo'], newValue);
+    });
   }
 
   updateLoanCurrency(e: any) {
-    console.log(e.value);
     this.tmpCurrency = e.value;
     this.form.patchValue({ moeda: this.tmpCurrency.simbolo });
   }
 
-  convertCurrency() {
+  calculateMonthsDifference(start_date: string, final_date: string) {
+    if (!start_date || !final_date) return;
 
+    const start = new Date(start_date);
+    const end = new Date(final_date);
+
+    const yearDifference = end.getFullYear() - start.getFullYear();
+    const monthDifference = end.getMonth() - start.getMonth();
+
+    const totalMonths = (yearDifference * 12) + monthDifference;
+    
+    return Math.abs(totalMonths);
+  }
+
+  calcularValorFinalEmprestimo() {
+    if (this.valor_convertido > 0 && this.loanDuration > 0) { 
+      console.log('passou')
+      const taxaMensal = 0.01;
+      const valorFinal = this.valor_convertido * Math.pow(1 + taxaMensal, this.loanDuration);
+      this.form.get("valor_final").setValue(parseFloat(valorFinal.toFixed(2)));
+    }
+  }
+
+  convertCurrency() {
+    this.valor_convertido = this.form.get("valor_obtido").value
+    this.calcularValorFinalEmprestimo();
   }
 
   /** 

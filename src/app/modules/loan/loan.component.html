@@ -12,11 +12,11 @@
 
         <form [formGroup]="form" class="container">
             <div class="row">
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-5">
                     <div class="form-control-group">
                         <mat-form-field appearance="outline" class="flex-auto col-12">
                             <mat-label label for="data_emprestimo" class="label"> Data de Contrato </mat-label>
-                            <input matInput name="data_emprestimo" id="data_emprestimo" type="date" class="form-control" max="9999-12-31" formControlName="data_emprestimo" />
+                            <input matInput name="data_emprestimo" id="data_emprestimo" type="date" class="form-control" max="9999-12-31" formControlName="data_emprestimo"  />
                         </mat-form-field>
                         <ng-container>
                             <div class="alert alert-danger" *ngIf="form.get('data_emprestimo')?.errors && form.get('data_emprestimo')?.touched">
@@ -25,11 +25,11 @@
                         </ng-container>
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-5">
                     <div class="form-control-group">
                         <mat-form-field appearance="outline" class="flex-auto col-12">
                             <mat-label label for="data_vencimento" class="label"> Data de Vencimento </mat-label>
-                            <input matInput name="data_vencimento" id="data_vencimento" type="date" class="form-control" max="9999-12-31" formControlName="data_vencimento" />
+                            <input matInput name="data_vencimento" id="data_vencimento" type="date" class="form-control" max="9999-12-31" formControlName="data_vencimento"  />
                         </mat-form-field>
                         <ng-container>
                             <div class="alert alert-danger" *ngIf="form.get('data_vencimento')?.errors && form.get('data_vencimento')?.touched">
@@ -37,6 +37,12 @@
                             </div>
                         </ng-container>
                     </div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <mat-form-field appearance="outline" class="col-12">
+                        <mat-label class="label">Duração (Meses)</mat-label>
+                        <input matInput [(ngModel)]="loanDuration" [ngModelOptions]="{ standalone: true }" readonly> 
+                    </mat-form-field>
                 </div>
             </div>
 
@@ -72,15 +78,9 @@
 
                 <div class="col-4">
                     <mat-form-field appearance="outline" class="col-12">
-                        <mat-label for="valor_convertido" class="label">Valor Convertido Em R$</mat-label>
-                        <input matInput name="valor_convertido" id="valor_convertido" class="form-control"
-                            formControlName="valor_convertido" type="text" mask="separator.2" prefix="">
+                        <mat-label class="label">Valor Convertido Em R$</mat-label>
+                        <input matInput [(ngModel)]="valor_convertido" [ngModelOptions]="{ standalone: true }" mask="separator.2" prefix="" readonly>
                     </mat-form-field>
-                    <ng-container>
-                        <div class="alert alert-danger" *ngIf="form.get('valor_convertido')?.errors && form.get('valor_convertido')?.touched">
-                            Valor Convertido Em R$ é obrigatória!
-                        </div>
-                    </ng-container>
                 </div>
             </div>
 
@@ -169,19 +169,19 @@
                                 {{ loan.customer.name }}
                             </div>
                             <div>
-                                {{ loan.valor_obtido | currency:'BRL' }}
+                                {{ loan.valor_obtido | currency:'BRL':'symbol':'1.2-2' }}
                             </div>
                             <div>
-                                {{ loan.valor_final | currency:'BRL' }}
+                                {{ loan.valor_final | currency:'BRL':'symbol':'1.2-2' }}
                             </div>
                             <div>
-                                {{ loan.data_emprestimo | date:'MMM dd, h:mm a' }}
+                                {{ loan.data_emprestimo | date: 'dd/MM/y'  }}
                             </div>
                             <div>
-                                {{ loan.data_vencimento | date:'MMM dd, h:mm a' }}
+                                {{ loan.data_vencimento | date: 'dd/MM/y'  }}
                             </div>
                             <div>
-                                5 Meses
+                                {{ calculateMonthsDifference(loan.data_emprestimo, loan.data_vencimento) }} Meses
                             </div>
                         </div>
                     </ng-container>
