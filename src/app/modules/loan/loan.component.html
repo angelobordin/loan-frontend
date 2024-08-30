@@ -16,10 +16,12 @@
                     <div class="form-control-group">
                         <mat-form-field appearance="outline" class="flex-auto col-12">
                             <mat-label label for="data_emprestimo" class="label"> Data de Contrato </mat-label>
-                            <input matInput name="data_emprestimo" id="data_emprestimo" type="date" class="form-control" max="9999-12-31" formControlName="data_emprestimo"  />
+                            <input matInput name="data_emprestimo" id="data_emprestimo" type="date" class="form-control"
+                                max="9999-12-31" formControlName="data_emprestimo" />
                         </mat-form-field>
                         <ng-container>
-                            <div class="alert alert-danger" *ngIf="form.get('data_emprestimo')?.errors && form.get('data_emprestimo')?.touched">
+                            <div class="alert alert-danger"
+                                *ngIf="form.get('data_emprestimo')?.errors && form.get('data_emprestimo')?.touched">
                                 Data do Empréstimo é obrigatória!
                             </div>
                         </ng-container>
@@ -29,10 +31,12 @@
                     <div class="form-control-group">
                         <mat-form-field appearance="outline" class="flex-auto col-12">
                             <mat-label label for="data_vencimento" class="label"> Data de Vencimento </mat-label>
-                            <input matInput name="data_vencimento" id="data_vencimento" type="date" class="form-control" max="9999-12-31" formControlName="data_vencimento"  />
+                            <input matInput name="data_vencimento" id="data_vencimento" type="date" class="form-control"
+                                max="9999-12-31" formControlName="data_vencimento" />
                         </mat-form-field>
                         <ng-container>
-                            <div class="alert alert-danger" *ngIf="form.get('data_vencimento')?.errors && form.get('data_vencimento')?.touched">
+                            <div class="alert alert-danger"
+                                *ngIf="form.get('data_vencimento')?.errors && form.get('data_vencimento')?.touched">
                                 Data do Vencimento é obrigatória!
                             </div>
                         </ng-container>
@@ -41,7 +45,7 @@
                 <div class="col-12 col-md-2">
                     <mat-form-field appearance="outline" class="col-12">
                         <mat-label class="label">Duração (Meses)</mat-label>
-                        <input matInput [(ngModel)]="loanDuration" [ngModelOptions]="{ standalone: true }" readonly> 
+                        <input matInput [(ngModel)]="loanDuration" [ngModelOptions]="{ standalone: true }" readonly>
                     </mat-form-field>
                 </div>
             </div>
@@ -51,7 +55,7 @@
                     <mat-form-field appearance="outline" class="flex-auto col-12">
                         <mat-label>Moeda</mat-label>
                         <mat-select formControlName="moeda" (selectionChange)="updateLoanCurrency($event)">
-                            <mat-option *ngFor="let currency of this.currencies" [value]="currency">
+                            <mat-option *ngFor="let currency of this.currencies" [value]="currency.simbolo">
                                 {{ currency.simbolo }} - {{ currency.nomeFormatado }}
                             </mat-option>
                         </mat-select>
@@ -70,7 +74,8 @@
                             formControlName="valor_obtido" type="text" mask="separator.2" prefix="">
                     </mat-form-field>
                     <ng-container>
-                        <div class="alert alert-danger" *ngIf="form.get('valor_obtido')?.errors && form.get('valor_obtido')?.touched">
+                        <div class="alert alert-danger"
+                            *ngIf="form.get('valor_obtido')?.errors && form.get('valor_obtido')?.touched">
                             Valor Contratado é obrigatória!
                         </div>
                     </ng-container>
@@ -79,7 +84,7 @@
                 <div class="col-4">
                     <mat-form-field appearance="outline" class="col-12">
                         <mat-label class="label">Valor Convertido Em R$</mat-label>
-                        <input matInput [(ngModel)]="valor_convertido" [ngModelOptions]="{ standalone: true }" mask="separator.2" prefix="" readonly>
+                        <input matInput [(ngModel)]="valor_convertido" [ngModelOptions]="{ standalone: true }" readonly>
                     </mat-form-field>
                 </div>
             </div>
@@ -90,7 +95,8 @@
                         <mat-label>Cliente</mat-label>
                         <mat-select formControlName="customer_id">
                             <mat-option *ngFor="let customer of this.customers" [value]="customer.id">
-                                {{ customer.id }} - {{ customer.cpf | mask: "000.000.000-00": { prefix: '' } }} - {{ customer.name }}
+                                {{ customer.id }} - {{ customer.cpf | mask: "000.000.000-00": { prefix: '' } }} - {{
+                                customer.name }}
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
@@ -104,8 +110,10 @@
 
             <div class="row">
                 <div class="col-6">
-                    <button *ngIf="!this.form.value['id']" [disabled]="form.invalid || inAction" type="button" class="btn btn-success" (click)="registerLoan()">Cadastrar</button>
-                    <button *ngIf="this.form.value['id']" [disabled]="form.invalid || form.pristine || inAction" type="button" class="btn btn-success" (click)="saveCustomer()">Salvar</button>
+                    <button *ngIf="!this.form.value['id']" [disabled]="form.invalid || inAction" type="button"
+                        class="btn btn-success" (click)="registerLoan()">Cadastrar</button>
+                    <button *ngIf="this.form.value['id']" [disabled]="form.invalid || form.pristine || inAction"
+                        type="button" class="btn btn-success" (click)="saveCustomer()">Salvar</button>
                 </div>
 
                 <div class="col-6">
@@ -114,8 +122,8 @@
                         <div class="col-6">
                             <mat-form-field class="col-12">
                                 <mat-label for="valor_final" class="label">Valor Final (R$)</mat-label>
-                                <input matInput name="valor_final" id="valor_final" class="form-control" [readonly]="true"
-                                    formControlName="valor_final" type="text" mask="separator.2" >
+                                <input matInput name="valor_final" id="valor_final" class="form-control"
+                                    [readonly]="true" formControlName="valor_final" type="text" mask="separator.2">
                             </mat-form-field>
                         </div>
                     </div>
@@ -140,7 +148,7 @@
                         Cliente
                     </div>
                     <div>
-                        Valor Contratado 
+                        Valor Contratado
                     </div>
                     <div>
                         Valor Contratado (R$)
@@ -161,9 +169,11 @@
 
                 <ng-container *ngIf="(loans$ | async) as loans">
                     <ng-container *ngFor="let loan of loans; trackBy: trackByFn">
-                        <div class="loan-row flex items-center gap-4 py-3 px-6 md:px-8 border-b even:bg-gray-100 odd:bg-white dark:even:bg-gray-800 dark:odd:bg-gray-700">
+                        <div
+                            class="loan-row flex items-center gap-4 py-3 px-6 md:px-8 border-b even:bg-gray-100 odd:bg-white dark:even:bg-gray-800 dark:odd:bg-gray-700">
                             <div class="flex justify-center items-center">
-                                <mat-icon aria-hidden="false" fontIcon="delete" class="botao text-red-500 cursor-pointer" (click)="deleteLoan(loan)"></mat-icon>
+                                <mat-icon aria-hidden="false" fontIcon="delete"
+                                    class="botao text-red-500 cursor-pointer" (click)="deleteLoan(loan)"></mat-icon>
                             </div>
                             <div>
                                 {{ loan.id }}
@@ -181,10 +191,10 @@
                                 {{ loan.valor_final | currency:'BRL':'symbol':'1.2-2' }}
                             </div>
                             <div>
-                                {{ loan.data_emprestimo | date: 'dd/MM/y'  }}
+                                {{ loan.data_emprestimo | date: 'dd/MM/y' }}
                             </div>
                             <div>
-                                {{ loan.data_vencimento | date: 'dd/MM/y'  }}
+                                {{ loan.data_vencimento | date: 'dd/MM/y' }}
                             </div>
                             <div>
                                 {{ calculateMonthsDifference(loan.data_emprestimo, loan.data_vencimento) }} Meses

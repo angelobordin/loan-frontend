@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, map, Observable, switchMap, take, tap } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map, Observable, switchMap, take, tap } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { ApiResponse } from "util/interfaces/api-response";
 import { LoanForm, LoanResponse } from "util/interfaces/loan";
@@ -10,7 +10,7 @@ export class LoanService {
 	private readonly bcBaseApiURL = 'https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata';
 	private _loans: BehaviorSubject<LoanResponse[]> = new BehaviorSubject(null);
 
-	constructor(private _httpClient: HttpClient) {}
+	constructor(private _httpClient: HttpClient) { }
 
 	get loans$(): Observable<LoanResponse[]> {
 		return this._loans.asObservable();
@@ -78,13 +78,34 @@ export class LoanService {
 		);
 	}
 
-	public async getCotacaoCompra() {
-		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda='USD'&@dataCotacao='08-29-2024'&$top=1&$orderby=dataHoraCotacao desc&$format=json&$select=cotacaoCompra`;
-	
-		return this._httpClient.get<{ value: { cotacaoCompra: number }[] }>(url).pipe(
-			map((response) => {
-					return response.value[0].cotacaoCompra;
-			})
-		);
+	public async getCotacaoCompra(moeda: string = "USD") {
+		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda=${moeda}&@dataCotacao=${this.generateTodayDate()}&$top=1&$orderby=dataHoraCotacao desc&$format=json&$select=cotacaoCompra`;
+
+		const res = await firstValueFrom(this._httpClient.get<{ value: { cotacaoCompra: number }[] }>(url));
+		return res.value[0].cotacaoCompra;
+	}
+
+	public async getParidadeDeVenda(moeda: string) {
+		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda=${moeda}&@dataCotacao=${this.generateTodayDate()}&$top=1&$skip=0&$orderby=paridadeVenda%20desc&$format=json&$select=paridadeVenda`
+
+		const res = await firstValueFrom(this._httpClient.get<{ value: { paridadeVenda: number }[] }>(url));
+		return res.value[0].paridadeVenda;
+	}
+
+	public async getParidadeDeCompra(moeda: string) {
+		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda=${moeda}&@dataCotacao=${this.generateTodayDate()}&$top=1&$skip=0&$orderby=paridadeCompra%20desc&$format=json&$select=paridadeCompra`;
+
+		const res = await firstValueFrom(this._httpClient.get<{ value: { paridadeVenda: number }[] }>(url));
+		return res.value[0].paridadeVenda;
+	}
+
+	private generateTodayDate() {
+		const today = new Date();
+
+		const month = String(today.getMonth() + 1).padStart(2, '0'); // Janeiro é 0!
+		const day = String(today.getDate()).padStart(2, '0');
+		const year = today.getFullYear();
+
+		return `${month}-${day}-${year}`;
 	}
 }

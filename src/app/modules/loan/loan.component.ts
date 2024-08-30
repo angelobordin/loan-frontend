@@ -14,7 +14,6 @@ import { LoanService } from './loan.service';
 import { Customer } from 'util/interfaces/customer';
 import { LoanResponse } from 'util/interfaces/loan';
 import { Currency } from 'util/interfaces/currrency';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-loan',
@@ -23,17 +22,17 @@ import { HttpClient } from '@angular/common/http';
     MatIconModule,
     MatInputModule,
     FormsModule,
-		ReactiveFormsModule,
-		MatFormFieldModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
     MatButtonModule,
     CommonModule,
-    NgxMaskDirective, 
+    NgxMaskDirective,
     NgxMaskPipe,
     AsyncPipe,
     DatePipe,
     CurrencyPipe,
-		MatSelectModule,
-		MatOptionModule,
+    MatSelectModule,
+    MatOptionModule,
   ],
   templateUrl: './loan.component.html',
   styleUrl: './loan.component.scss'
@@ -47,12 +46,12 @@ export class LoanComponent implements OnInit, OnDestroy {
 
   customers: Customer[];
   currencies: Currency[];
-  
+
   public form: FormGroup = new FormGroup([]);
   public inAction: boolean = false;
-	private _unsubscribeAll: Subject<any> = new Subject<any>();
+  private _unsubscribeAll: Subject<any> = new Subject<any>();
 
-  constructor(private fb: FormBuilder, private _service: LoanService, private route: ActivatedRoute) {}
+  constructor(private fb: FormBuilder, private _service: LoanService, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
     this.route.data.subscribe(data => {
@@ -99,8 +98,8 @@ export class LoanComponent implements OnInit, OnDestroy {
   }
 
   updateLoanCurrency(e: any) {
-    this.tmpCurrency = e.value;
-    this.form.patchValue({ moeda: this.tmpCurrency.simbolo });
+    this.form.patchValue({ moeda: e.value });
+    this.tmpCurrency = this.currencies.find(c => c.simbolo === e.value);
 
     this.convertCurrency();
   }
@@ -115,12 +114,12 @@ export class LoanComponent implements OnInit, OnDestroy {
     const monthDifference = end.getMonth() - start.getMonth();
 
     const totalMonths = (yearDifference * 12) + monthDifference;
-    
+
     return Math.abs(totalMonths);
   }
 
   calcularValorFinalEmprestimo() {
-    if (this.valor_convertido > 0 && this.loanDuration > 0) { 
+    if (this.valor_convertido > 0 && this.loanDuration > 0) {
       const taxaMensal = 0.01; // Taxa de 1% mensal (Não sei qual usar)
       const valorFinal = this.valor_convertido * Math.pow(1 + taxaMensal, this.loanDuration);
       this.form.get("valor_final").setValue(parseFloat(valorFinal.toFixed(2)));
@@ -129,44 +128,52 @@ export class LoanComponent implements OnInit, OnDestroy {
 
   async convertCurrency(foreignValue?: number, currency?: Currency) {
     this.valor_convertido = this.form.get("valor_obtido").value ?? foreignValue;
-    this.calcularValorFinalEmprestimo();
 
     const moeda = this.tmpCurrency ?? currency;
 
-    switch (moeda.simbolo) {
+    switch (moeda.tipoMoeda) {
       case "A": {
         // Exemplo de cálculo da cotação das moedas tipo A em unidade monetária corrente, considerando o real (BRL) como unidade monetária corrente e o dólar canadense (CAD) como moeda estrangeira:
         // Cotação de Compra CADBRL = Cotação USDBRL de Compra ÷ Paridade USDCAD de Venda
 
-        // const cotacaoUSDBRLCompra: number = 5.6352;
-        // const paridadeUSDVenda: number = 1.3464;
-
-        const [ cotacaçãoCompra, paridade ] = await Promise.all([
-           
+        const [cotacaoDeCompra, paridadeDeVenda] = await Promise.all([
+          this._service.getCotacaoCompra("USD"),
+          this._service.getParidadeDeVenda(moeda.simbolo)
         ]);
 
-        const cotacaoCompra: number = cotacaoUSDBRLCompra / paridadeUSDVenda;
-
-        const valorEmprestimoCAD: number = 10000;
+        const cotacaoCompra: number = cotacaoDeCompra / paridadeDeVenda;
+        if (isNaN(cotacaoCompra) || typeof cotacaoCompra !== 'number') return;
 
         // Converão final;
-        this.valor_convertido = valorEmprestimoCAD * cotacaoCompra;
+        this.valor_convertido = parseFloat(((this.form.get("valor_obtido").value ?? foreignValue) * cotacaoCompra).toFixed(2));
         break;
       }
 
       case "B": {
         // Exemplo de cálculo da cotação das moedas tipo B em unidade monetária corrente, considerando o real (BRL) como unidade monetária corrente e o euro (EUR) como moeda estrangeira:
         // Cotação de Compra EURBRL = Paridade EURUSD de Compra × Cotação USDBRL de Compra
+
+        const [cotacaoUSDBRLCompra, paridadeDeCompra] = await Promise.all([
+          this._service.getCotacaoCompra("USD"),
+          this._service.getParidadeDeCompra(moeda.simbolo)
+        ]);
+
+        const cotacaoCompra: number = paridadeDeCompra * cotacaoUSDBRLCompra;
+        if (isNaN(cotacaoCompra) || typeof cotacaoCompra !== 'number') return;
+
+        // Converão final;
+        this.valor_convertido = parseFloat(((this.form.get("valor_obtido").value ?? foreignValue) * cotacaoCompra).toFixed(2));
         break;
       }
     }
 
+    this.calcularValorFinalEmprestimo();
     return this.valor_convertido;
   }
 
   registerLoan() {
     this._service.registerLoan({
-      ...this.form.value, 
+      ...this.form.value,
       data_emprestimo: new Date(this.form.value['data_emprestimo']),
       data_vencimento: new Date(this.form.value['data_vencimento'])
     }).pipe(takeUntil(this._unsubscribeAll)).subscribe();
@@ -182,6 +189,6 @@ export class LoanComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this._unsubscribeAll.next(null);
-		this._unsubscribeAll.complete();
+    this._unsubscribeAll.complete();
   }
 }
