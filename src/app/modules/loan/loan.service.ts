@@ -79,21 +79,21 @@ export class LoanService {
 	}
 
 	public async getCotacaoCompra(moeda: string = "USD") {
-		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda=${moeda}&@dataCotacao=${this.generateTodayDate()}&$top=1&$orderby=dataHoraCotacao desc&$format=json&$select=cotacaoCompra`;
+		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda='${moeda}'&@dataCotacao='${this.generateTodayDate()}'&$top=1&$orderby=dataHoraCotacao desc&$format=json&$select=cotacaoCompra`;
 
 		const res = await firstValueFrom(this._httpClient.get<{ value: { cotacaoCompra: number }[] }>(url));
 		return res.value[0].cotacaoCompra;
 	}
 
 	public async getParidadeDeVenda(moeda: string) {
-		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda=${moeda}&@dataCotacao=${this.generateTodayDate()}&$top=1&$skip=0&$orderby=paridadeVenda%20desc&$format=json&$select=paridadeVenda`
+		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda='${moeda}'&@dataCotacao='${this.generateTodayDate()}'&$top=1&$skip=0&$orderby=paridadeVenda%20desc&$format=json&$select=paridadeVenda`
 
 		const res = await firstValueFrom(this._httpClient.get<{ value: { paridadeVenda: number }[] }>(url));
 		return res.value[0].paridadeVenda;
 	}
 
 	public async getParidadeDeCompra(moeda: string) {
-		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda=${moeda}&@dataCotacao=${this.generateTodayDate()}&$top=1&$skip=0&$orderby=paridadeCompra%20desc&$format=json&$select=paridadeCompra`;
+		const url = `${this.bcBaseApiURL}/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda='${moeda}'&@dataCotacao='${this.generateTodayDate()}'&$top=1&$skip=0&$orderby=paridadeCompra%20desc&$format=json&$select=paridadeCompra`;
 
 		const res = await firstValueFrom(this._httpClient.get<{ value: { paridadeVenda: number }[] }>(url));
 		return res.value[0].paridadeVenda;
