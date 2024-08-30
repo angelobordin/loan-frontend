@@ -14,6 +14,7 @@ import { LoanService } from './loan.service';
 import { Customer } from 'util/interfaces/customer';
 import { LoanResponse } from 'util/interfaces/loan';
 import { Currency } from 'util/interfaces/currrency';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-loan',
@@ -70,10 +71,22 @@ export class LoanComponent implements OnInit, OnDestroy {
     })
 
     this.loans$ = this._service.loans$;
-    this.loans$.pipe(takeUntil(this._unsubscribeAll)).subscribe();
+    this.loans$.pipe(takeUntil(this._unsubscribeAll)).subscribe(async res => {
+      if (res) {
+        res.forEach(async loan => {
+          loan['valor_convertido'] = await this.convertCurrency(loan.valor_obtido, this.getLoanCurrency(loan.moeda));
+        })
+      }
+
+      console.log(res);
+    });
 
     this.form.valueChanges.subscribe(res => {
       this.calcularValorFinalEmprestimo();
+    })
+
+    this.form.get("valor_obtido").valueChanges.subscribe(async (newValue) => {
+      await this.convertCurrency(newValue);
     })
 
     this.form.get('data_emprestimo').valueChanges.subscribe(newValue => {
@@ -88,6 +101,8 @@ export class LoanComponent implements OnInit, OnDestroy {
   updateLoanCurrency(e: any) {
     this.tmpCurrency = e.value;
     this.form.patchValue({ moeda: this.tmpCurrency.simbolo });
+
+    this.convertCurrency();
   }
 
   calculateMonthsDifference(start_date: string, final_date: string) {
@@ -106,28 +121,48 @@ export class LoanComponent implements OnInit, OnDestroy {
 
   calcularValorFinalEmprestimo() {
     if (this.valor_convertido > 0 && this.loanDuration > 0) { 
-      const taxaMensal = 0.01;
+      const taxaMensal = 0.01; // Taxa de 1% mensal (Não sei qual usar)
       const valorFinal = this.valor_convertido * Math.pow(1 + taxaMensal, this.loanDuration);
       this.form.get("valor_final").setValue(parseFloat(valorFinal.toFixed(2)));
     }
   }
 
-  convertCurrency() {
-    this.valor_convertido = this.form.get("valor_obtido").value
+  async convertCurrency(foreignValue?: number, currency?: Currency) {
+    this.valor_convertido = this.form.get("valor_obtido").value ?? foreignValue;
     this.calcularValorFinalEmprestimo();
+
+    const moeda = this.tmpCurrency ?? currency;
+
+    switch (moeda.simbolo) {
+      case "A": {
+        // Exemplo de cálculo da cotação das moedas tipo A em unidade monetária corrente, considerando o real (BRL) como unidade monetária corrente e o dólar canadense (CAD) como moeda estrangeira:
+        // Cotação de Compra CADBRL = Cotação USDBRL de Compra ÷ Paridade USDCAD de Venda
+
+        // const cotacaoUSDBRLCompra: number = 5.6352;
+        // const paridadeUSDVenda: number = 1.3464;
+
+        const [ cotacaçãoCompra, paridade ] = await Promise.all([
+           
+        ]);
+
+        const cotacaoCompra: number = cotacaoUSDBRLCompra / paridadeUSDVenda;
+
+        const valorEmprestimoCAD: number = 10000;
+
+        // Converão final;
+        this.valor_convertido = valorEmprestimoCAD * cotacaoCompra;
+        break;
+      }
+
+      case "B": {
+        // Exemplo de cálculo da cotação das moedas tipo B em unidade monetária corrente, considerando o real (BRL) como unidade monetária corrente e o euro (EUR) como moeda estrangeira:
+        // Cotação de Compra EURBRL = Paridade EURUSD de Compra × Cotação USDBRL de Compra
+        break;
+      }
+    }
+
+    return this.valor_convertido;
   }
-
-  /** 
-  Exemplo de cálculo da cotação das moedas tipo A em unidade monetária corrente, considerando o real (BRL) como unidade monetária corrente e o dólar canadense (CAD) como moeda estrangeira:
-
-  Cotação de Compra CADBRL = Cotação USDBRL de Compra ÷ Paridade USDCAD de Venda
-  Cotação de Venda CADBRL = Cotação USDBRL de Venda ÷ Paridade USDCAD de Compra
-
-  Exemplo de cálculo da cotação das moedas tipo B em unidade monetária corrente, considerando o real (BRL) como unidade monetária corrente e o euro (EUR) como moeda estrangeira:
-
-  Cotação de Compra EURBRL = Paridade EURUSD de Compra × Cotação USDBRL de Compra
-  Cotação de Venda EURBRL = Paridade EURUSD de Venda × Cotação USDBRL de Venda
-  */
 
   registerLoan() {
     this._service.registerLoan({
@@ -139,6 +174,10 @@ export class LoanComponent implements OnInit, OnDestroy {
 
   deleteLoan(loan: LoanResponse) {
     this._service.deleteLoan(loan.id).pipe(takeUntil(this._unsubscribeAll)).subscribe();
+  }
+
+  getLoanCurrency(simbolo: string) {
+    return this.currencies.find(c => c.simbolo === simbolo);
   }
 
   ngOnDestroy(): void {

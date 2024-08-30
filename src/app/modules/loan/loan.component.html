@@ -67,7 +67,7 @@
                     <mat-form-field appearance="outline" class="col-12">
                         <mat-label for="valor_obtido" class="label">Valor Contratado</mat-label>
                         <input matInput name="valor_obtido" id="valor_obtido" class="form-control"
-                            formControlName="valor_obtido" type="text" mask="separator.2" prefix="" (input)="convertCurrency()">
+                            formControlName="valor_obtido" type="text" mask="separator.2" prefix="">
                     </mat-form-field>
                     <ng-container>
                         <div class="alert alert-danger" *ngIf="form.get('valor_obtido')?.errors && form.get('valor_obtido')?.touched">
@@ -140,7 +140,10 @@
                         Cliente
                     </div>
                     <div>
-                        Valor Contratado
+                        Valor Contratado 
+                    </div>
+                    <div>
+                        Valor Contratado (R$)
                     </div>
                     <div>
                         Valor Restante
@@ -169,7 +172,10 @@
                                 {{ loan.customer.name }}
                             </div>
                             <div>
-                                {{ loan.valor_obtido | currency:'BRL':'symbol':'1.2-2' }}
+                                {{ loan.valor_obtido | currency: '2' }}
+                            </div>
+                            <div>
+                                {{ loan.valor_convertido | currency:'BRL':'symbol':'1.2-2' }}
                             </div>
                             <div>
                                 {{ loan.valor_final | currency:'BRL':'symbol':'1.2-2' }}
