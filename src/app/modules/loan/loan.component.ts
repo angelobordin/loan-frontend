@@ -65,7 +65,6 @@ export class LoanComponent implements OnInit, OnDestroy {
       data_vencimento: [null, [Validators.required]],
       moeda: [null, [Validators.required]],
       valor_obtido: [null, [Validators.required]],
-      valor_convertido: [{ value: null, disabled: true }],
       valor_final: [null, [Validators.required]],
       customer_id: [null, [Validators.required]],
     })
@@ -107,7 +106,6 @@ export class LoanComponent implements OnInit, OnDestroy {
 
   calcularValorFinalEmprestimo() {
     if (this.valor_convertido > 0 && this.loanDuration > 0) { 
-      console.log('passou')
       const taxaMensal = 0.01;
       const valorFinal = this.valor_convertido * Math.pow(1 + taxaMensal, this.loanDuration);
       this.form.get("valor_final").setValue(parseFloat(valorFinal.toFixed(2)));
